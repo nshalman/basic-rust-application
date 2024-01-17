@@ -1,3 +1,5 @@
+//! My basic application
+
 #[tracing::instrument]
 fn hello_world() {
     tracing::info!("Hello, world!");
