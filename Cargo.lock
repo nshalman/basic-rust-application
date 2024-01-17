@@ -120,6 +120,7 @@ name = "basic"
 version = "0.1.0"
 dependencies = [
  "init-tracing-opentelemetry",
+ "opentelemetry",
  "tokio",
  "tracing",
 ]
