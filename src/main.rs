@@ -20,11 +20,6 @@ use std::sync::atomic::Ordering;
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
-    std::env::set_var("OTEL_SERVICE_NAME", "dropshot");
-    std::env::set_var("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317");
-    init_tracing_opentelemetry::tracing_subscriber_ext::init_subscribers()
-        .expect("init subscribers");
-
     // We must specify a configuration with a bind address.  We'll use 127.0.0.1
     // since it's available and won't expose this server outside the host.  We
     // request port 0, which allows the operating system to pick any available
@@ -55,13 +50,10 @@ async fn main() -> Result<(), String> {
 
     // Wait for the server to stop.  Note that there's not any code to shut down
     // this server, so we should never get past this point.
-    let _ = server.await;
-    opentelemetry::global::shutdown_tracer_provider();
-    Ok(())
+    server.await
 }
 
 /// Application-specific example context (state shared by handler functions)
-#[derive(Debug)]
 struct ExampleContext {
     /// counter that can be manipulated by requests to the HTTP API
     counter: AtomicU64,
@@ -81,7 +73,7 @@ impl ExampleContext {
 /// `CounterValue` represents the value of the API's counter, either as the
 /// response to a GET request to fetch the counter or as the body of a PUT
 /// request to update the counter.
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+#[derive(Deserialize, Serialize, JsonSchema)]
 struct CounterValue {
     counter: u64,
 }
@@ -91,7 +83,6 @@ struct CounterValue {
     method = GET,
     path = "/counter",
 }]
-#[tracing::instrument]
 async fn example_api_get_counter(
     rqctx: RequestContext<ExampleContext>,
 ) -> Result<HttpResponseOk<CounterValue>, HttpError> {
@@ -108,7 +99,6 @@ async fn example_api_get_counter(
     method = PUT,
     path = "/counter",
 }]
-#[tracing::instrument]
 async fn example_api_put_counter(
     rqctx: RequestContext<ExampleContext>,
     update: TypedBody<CounterValue>,
