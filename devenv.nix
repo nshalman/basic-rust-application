@@ -17,6 +17,7 @@
       cargo-check.enable = true;
       clippy.enable = true;
       clippy.settings.denyWarnings = true;
+      markdownlint.enable = true;
       rustfmt.enable = true;
       taplo.enable = true;
     };
